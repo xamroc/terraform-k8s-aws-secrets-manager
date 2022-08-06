@@ -63,3 +63,15 @@ resource "helm_release" "csi_secrets_store_provider_aws" {
     module.eks
   ]
 }
+
+resource "kubernetes_namespace" "namespaces" {
+  for_each = toset(var.namespaces)
+
+  metadata {
+    name = each.key
+  }
+
+  depends_on = [
+    module.eks
+  ]
+}
