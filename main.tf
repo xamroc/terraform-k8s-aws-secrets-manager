@@ -2,6 +2,14 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+data "aws_eks_cluster" "cluster" {
+  name = module.eks.cluster_id
+}
+
+data "aws_eks_cluster_auth" "cluster" {
+  name = module.eks.cluster_id
+}
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "3.11.3"
@@ -43,3 +51,15 @@ module "eks" {
   enable_irsa = true
 }
 
+resource "helm_release" "csi_secrets_store_provider_aws" {
+  name        = "csi-secrets-store-provider-aws"
+  repository  = "https://aws.github.io/eks-charts"
+  chart       = "csi-secrets-store-provider-aws"
+  version     = "0.0.3"
+
+  namespace   = "kube-system"
+
+  depends_on = [
+    module.eks
+  ]
+}
