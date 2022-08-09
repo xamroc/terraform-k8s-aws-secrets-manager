@@ -1,16 +1,31 @@
-# terraform-k8s-aws-secrets-manager
+# Terraform for AWS Secrets Manager and Kubernetes (K8s) Namespaces
 
-# Commands
-## Display secret
+## Description
+
+Showcase how we can use K8s Namespaces as a logical grouping to restrict access to secrets in AWS Secrets Manager.
+
+## Prerequisites
+1. Terraform >= 1.x.x
+2. Secret in AWS Secrets Manager named: `cluster-aws-secrets-manager/team-red/secret`
+
+## Commands
+### Plan
+```
+terraform plan
+```
+
+### Apply
+```
+terraform apply
+```
+
+### Deploy Sample Code
+```
+kubectl apply -f ./examples/k8s-manifests/secrets-provider-class.yaml -n team-red
+kubectl apply -f ./examples/k8s-manifests/deployment.yaml -n team-red
+```
+
+### Display Secret
 ```
 kubectl exec -it $(kubectl get pods | awk '/nginx-deployment/{print $1}' | head -1) cat /mnt/secrets-store/cluster-aws-secrets-manager_team-red_secret; echo
 ````
-
-## Error
-```
-Events:
-  Type     Reason       Age                From               Message
-  ----     ------       ----               ----               -------
-  Warning  FailedMount  39s                kubelet            MountVolume.SetUp failed for volume "secrets-store-inline" : rpc error: code = Unknown desc = failed to mount secrets store objects for pod team-blue/nginx-deployment-8567c79cf6-qgb6d, err: rpc error: code = Unknown desc = Failed fetching secret cluster-aws-secrets-manager/team-red/secret: AccessDeniedException: User: arn:aws:sts::xxx:assumed-role/cluster-aws-secrets-manager-team-blue-secrets-manager-role/secrets-store-csi-driver-provider-aws is not authorized to perform: secretsmanager:GetSecretValue on resource: cluster-aws-secrets-manager/team-red/secret because no identity-based policy allows the secretsmanager:GetSecretValue action
-           status code: 400, request id: xxx
-```
